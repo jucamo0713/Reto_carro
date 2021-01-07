@@ -76,9 +76,8 @@
     <title>Curso JavaScript aprenderaprogramar.com</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBawixDb7I5u7qT7hlkP0w4WYzMCnG7IhY&callback=initMap&libraries=&v=weekly"
-      defer
-    ></script>
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBawixDb7I5u7qT7hlkP0w4WYzMCnG7IhY&callback=initMap&libraries=&v=weekly"
+        defer></script>
     <style>
         * {
             font-family: sans-serif;
@@ -144,7 +143,7 @@
                 center: new google.maps.LatLng(lat, long)
 
             };
-            directionsRenderer.setMap(map);
+
             const onChangeHandler = function () {
                 calculateAndDisplayRoute(directionsService, directionsRenderer, centro, map.getCenter());
             };
@@ -160,6 +159,7 @@
                 marker.setPosition(map.getCenter());
             });
             marker.addListener("click", onChangeHandler);
+            directionsRenderer.setMap(map);
         }
         function calculateAndDisplayRoute(directionsService, directionsRenderer, origin, destino) {
             console.log(destino);
@@ -170,6 +170,7 @@
                     travelMode: google.maps.TravelMode.DRIVING,
                 },
                 (response, status) => {
+                    console.log(response);
                     if (status === "OK") {
                         directionsRenderer.setDirections(response);
                     } else {
