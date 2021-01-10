@@ -84,7 +84,7 @@ class Carro {
         if (!this.frenoMano) {
             return pintar("Pon el freno de mano antes");
         } else if (this.marcha != 0) {
-            return pintar("Coloca el carro en neutro")
+            return pintar("Coloca el carro en neutro");
         } else if (this.encendido) {
             if (this.velocidad != 0) {
                 return pintar("Para apagar el carro primero tiene que estar detenido");
@@ -274,10 +274,32 @@ class Carro {
         }
         if (this.velocidad > 0 && this.marcha == -1) {
             this.velocidad = 0;
-            if (this.aceleracion>0) {
+            if (this.aceleracion > 0) {
                 this.aceleracion = -this.aceleracion - 1;
             }
             this.moviendo = false;
+        }
+        if (this.marcha == 0 && this.aceleracion > 0 && this.velocidad > 0) {
+            if (this.desaceleracion < 0.5) {
+                this.desaceleracion = this.desaceleracion - 0.5;
+            }
+        }
+        if (this.marcha == 0 && this.aceleracion > 0 && this.velocidad < 0) {
+            if (this.desaceleracion > 0.5) {                
+                this.velocidad=0;
+                this.desaceleracion = this.desaceleracion + 0.5;
+            }
+        }
+        if (this.marcha == 0 && this.aceleracion < 0 && this.velocidad < 0) {
+            if (this.desaceleracion < -0.5) {
+                this.desaceleracion = this.desaceleracion - 0.5;
+            }
+        }
+        if (this.marcha == 0 && this.aceleracion < 0 && this.velocidad > 0) {
+            if (this.desaceleracion > -0.5) {
+                this.velocidad=0;
+                this.desaceleracion = this.desaceleracion + 0.5;
+            }
         }
     }
 }
