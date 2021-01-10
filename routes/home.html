@@ -10,7 +10,7 @@
 
         function iniciar() {
 
-            var boton = document.getElementById('obtener');
+            let boton = document.getElementById('obtener');
 
             boton.addEventListener('click', obtener, false);
 
@@ -24,9 +24,9 @@
 
         function mostrar(posicion) {
 
-            var ubicacion = document.getElementById('localizacion');
+            let ubicacion = document.getElementById('localizacion');
 
-            var datos = '';
+            let datos = '';
 
             datos += 'Latitud: ' + posicion.coords.latitude + '<br>';
 
@@ -98,7 +98,6 @@
 
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
     <script type="text/javascript">
-
         function iniciar() {
             obtener();
 
@@ -112,7 +111,6 @@
 
         function mostrar(posicion) {
             console.log(posicion);
-            var datos = '';
             initialize(posicion.coords.latitude, posicion.coords.longitude);
 
         }
@@ -131,13 +129,14 @@
 
         window.addEventListener('load', iniciar, false);
 
-        var map;
+        let map;
 
+        let route = [];
         function initialize(lat, long) {
             const myLatlng = { lat: lat, lng: long };
             const directionsService = new google.maps.DirectionsService();
-            const directionsRenderer = new google.maps.DirectionsRenderer();
-            var mapOptions = {
+
+            let mapOptions = {
 
                 zoom: 15,
                 center: new google.maps.LatLng(lat, long)
@@ -159,10 +158,13 @@
                 marker.setPosition(map.getCenter());
             });
             marker.addListener("click", onChangeHandler);
-            directionsRenderer.setMap(map);
+            const directionsRenderer = new google.maps.DirectionsRenderer({
+                map,
+                panel: document.getElementById("ruta"),
+            });
+
         }
         function calculateAndDisplayRoute(directionsService, directionsRenderer, origin, destino) {
-            console.log(destino);
             directionsService.route(
                 {
                     origin: origin,
@@ -173,6 +175,13 @@
                     console.log(response);
                     if (status === "OK") {
                         directionsRenderer.setDirections(response);
+                        for (let i = 0; i < response.routes[0].legs[0].steps.length; i++) {
+                            route.push({ duration: response.routes[0].legs[0].steps[i].duration.value,
+                            distance:response.routes[0].legs[0].steps[i].distance.value,
+                            action:response.routes[0].legs[0].steps[i].instructions
+                        });
+                        }
+                        console.log(route);
                     } else {
                         window.alert("Directions request failed due to " + status);
                     }
@@ -189,7 +198,7 @@
     <h1>Utiliza el mapa</h1>
 
     <div id="lienzoMapa"></div>
-
+    <div id="ruta"></div>
 </body>
 
 </html>
