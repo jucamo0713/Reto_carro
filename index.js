@@ -4,6 +4,7 @@ class Carro {
     constructor() {
         this.moviendo = false;
         this.clos = false;
+        this.frenando = false;
         this.frenoMano = Math.floor(Math.random() * 2) == 0 ? false : true;
         this.tope = 0;
         this.velocidad = 0;
@@ -29,10 +30,10 @@ class Carro {
         }
     }
     dejarAcelerar = async () => {
-        if (this.moviendo) {
+        if (!this.frenando && this.moviendo) {
             pintar("Se solto el acelerador");
+            this.moviendo = false;
         }
-        this.moviendo = false;
     }
     mover = async () => {
         let compro = this.velocidad == 0;
@@ -41,9 +42,12 @@ class Carro {
         }
         if (this.marcha > 0 && this.moviendo) {
             this.distancia = this.distancia + (this.velocidad * 0.5 + 0.5 * 0.5 * 0.5 * (this.aceleracion + this.desaceleracion));
-            this.velocidad = this.velocidad + (this.aceleracion + this.desaceleracion) * 0.5;
+            this.velocidad = this.velocidad + (this.frenando ? 4 * this.aceleracion - 1 : this.aceleracion + this.desaceleracion) * 0.5;
             if (this.velocidad > this.tope) {
                 this.velocidad = this.tope;
+            }
+            if (this.velocidad < 0) {
+                this.velocidad = 0;
             }
         } else if (this.marcha > 0) {
             this.distancia = this.distancia + (this.velocidad * 0.5 + 0.5 * 0.5 * 0.5 * (this.desaceleracion));
@@ -52,22 +56,48 @@ class Carro {
                 this.velocidad = 0;
             }
         } else if (this.marcha == 0 && !this.moviendo) {
-            this.distancia = this.distancia + (this.velocidad * 0.5 + 0.5 * 0.5 * 0.5 * (this.aceleracion + this.desaceleracion));
-            this.velocidad = this.velocidad + (this.aceleracion + this.desaceleracion) * 0.5;
-            if (this.velocidad < 0) {
-                this.velocidad = 0;
+            if (this.velocidad != 0) {
+                this.distancia = this.distancia + (this.velocidad * 0.5 + 0.5 * 0.5 * 0.5 * (this.aceleracion + this.desaceleracion));
+            }
+            if (this.aceleracion >= 0) {
+                this.velocidad = this.velocidad + (this.frenando ? 4 * this.desaceleracion - 1 : this.desaceleracion) * 0.5;
+                if (this.velocidad < 0) {
+                    this.velocidad = 0;
+                }
+            }
+            if (this.aceleracion < 0) {
+                this.velocidad = this.velocidad - (this.frenando ? 4 * this.desaceleracion + 1 : this.desaceleracion) * 0.5;
+                if (this.velocidad > 0) {
+                    this.velocidad = 0;
+                }
             }
         } else if (this.marcha == 0 && this.moviendo) {
             this.distancia = this.distancia + this.velocidad * 0.5;
+            if (this.frenando) {
+                if (this.aceleracion > 0) {
+                    this.velocidad = this.velocidad + (this.frenando ? 4 * this.desaceleracion - 1 : this.desaceleracion + this.aceleracion) * 0.5;
+                    if (this.velocidad < 0) {
+                        this.velocidad = 0;
+                    }
+                } else if (this.aceleracion > 0) {
+                    this.velocidad = this.velocidad + (this.frenando ? 4 * this.aceleracion + 1 : this.aceleracion + this.desaceleracion) * 0.5;
+                    if (this.velocidad > 0) {
+                        this.velocidad = 0;
+                    }
+                }
+            }
         } else if (this.marcha < 0 && this.moviendo) {
             this.distancia = this.distancia + (this.velocidad * 0.5 + 0.5 * 0.5 * 0.5 * (this.aceleracion));
-            this.velocidad = this.velocidad + (this.aceleracion) * 0.5;
+            this.velocidad = this.velocidad + (this.frenando ? 4 * this.aceleracion + 1: this.aceleracion) * 0.5;
             if (this.velocidad < this.tope) {
                 this.velocidad = this.tope;
             }
+            if (this.velocidad > 0) {
+                this.velocidad = 0;
+            }
         } else {
             this.distancia = this.distancia + (this.velocidad * 0.5 - 0.5 * 0.5 * 0.5 * (this.desaceleracion));
-            this.velocidad = this.velocidad - (this.desaceleracion) * 0.5;
+            this.velocidad = this.velocidad - (this.frenando ? 4 * this.desaceleracion + 0.5 : this.desaceleracion) * 0.5;
             if (this.velocidad > 0) {
                 this.velocidad = 0;
             }
@@ -152,7 +182,6 @@ class Carro {
 
         } else {
             this.marcha = 0;
-            this.aceleracion = 0;
         }
     }
     subirPalanca = async () => {
@@ -253,54 +282,59 @@ class Carro {
         }
     }
     frenar = async () => {
-        if (this.velocidad > 0 && this.marcha > 0) {
+        if (this.velocidad >= 0 && this.marcha > 0) {
             if (this.aceleracion > 0) {
-                this.aceleracion = -this.aceleracion - 1;
+                this.aceleracion = (-this.aceleracion);
             }
             this.moviendo = true;
         }
-        if (this.velocidad < 0 && this.marcha > 0) {
+        if (this.velocidad <= 0 && this.marcha > 0) {
             this.velocidad = 0;
             if (this.aceleracion < 0) {
-                this.aceleracion = -this.aceleracion + 1;
+                this.aceleracion = -this.aceleracion;
             }
             this.moviendo = false;
         }
-        if (this.velocidad < 0 && this.marcha == -1) {
+        if (this.velocidad <= 0 && this.marcha == -1) {
             if (this.aceleracion < 0) {
-                this.aceleracion = -this.aceleracion + 1;
+                this.aceleracion = -this.aceleracion;
             }
             this.moviendo = true;
         }
-        if (this.velocidad > 0 && this.marcha == -1) {
+        if (this.velocidad >= 0 && this.marcha == -1) {
             this.velocidad = 0;
             if (this.aceleracion > 0) {
-                this.aceleracion = -this.aceleracion - 1;
+                this.aceleracion = -this.aceleracion;
             }
             this.moviendo = false;
         }
-        if (this.marcha == 0 && this.aceleracion > 0 && this.velocidad > 0) {
-            if (this.desaceleracion < 0.5) {
-                this.desaceleracion = this.desaceleracion - 0.5;
-            }
+        if (this.marcha == 0) {
+            this.moviendo = false;
         }
-        if (this.marcha == 0 && this.aceleracion > 0 && this.velocidad < 0) {
-            if (this.desaceleracion > 0.5) {                
-                this.velocidad=0;
-                this.desaceleracion = this.desaceleracion + 0.5;
-            }
+        this.frenando = true;
+        if (!this.frenando) {
+            pintar("Se piso el Freno");
+            console.log(this);
         }
-        if (this.marcha == 0 && this.aceleracion < 0 && this.velocidad < 0) {
-            if (this.desaceleracion < -0.5) {
-                this.desaceleracion = this.desaceleracion - 0.5;
+    }
+    dejarFreno = async () => {
+        if (this.frenando) {
+            if (this.velocidad >= 0 && this.marcha > 0) {
+                this.cambiarMarcha(this.palanca);
+                this.moviendo = false;
+                if (this.aceleracion < 0) {
+                    this.aceleracion = -this.aceleracion;
+                }
             }
-        }
-        if (this.marcha == 0 && this.aceleracion < 0 && this.velocidad > 0) {
-            if (this.desaceleracion > -0.5) {
-                this.velocidad=0;
-                this.desaceleracion = this.desaceleracion + 0.5;
+            if (this.velocidad >= 0 && this.marcha == -1) {
+                this.cambiarMarcha(this.palanca);
+                this.moviendo = false;
+                if (this.aceleracion < 0) {
+                    this.aceleracion = -this.aceleracion;
+                }
             }
-        }
+            pintar("Se solto el Freno");
+        } this.frenando = false;
     }
 }
 let x;
@@ -324,7 +358,6 @@ window.addEventListener('load', async () => {
 
 //Undir tecla
 window.addEventListener('keydown', async (event) => {
-    console.log(event.keyCode);
     try {
         if (event.code != "KeyC" && event.code != "KeyZ" && event.code != "KeyM" && event.code != "Enter") {
             document.getElementById(event.code).style.backgroundColor = "red";
@@ -339,7 +372,12 @@ window.addEventListener('keydown', async (event) => {
     //eventos que necesitan que el carro este encendido
     if (x.encendido) {
         if (event.keyCode == 87) {
-            return x.acelerar();
+            if (document.getElementById("KeyS").style.backgroundColor != "red") {
+                return x.acelerar();
+            } else {
+                document.getElementById("KeyW").style.backgroundColor = "white"
+                return pintar("Suelte primero el Freno");
+            }
         }
         if (event.keyCode == 69) {
             return x.pisarClos();
@@ -348,6 +386,7 @@ window.addEventListener('keydown', async (event) => {
             if (document.getElementById("KeyW").style.backgroundColor != "red") {
                 return x.frenar();
             } else {
+                document.getElementById("KeyS").style.backgroundColor = "white"
                 return pintar("Suelte primero el acelerador");
             }
         }
@@ -404,5 +443,8 @@ window.addEventListener('keyup', async (event) => {
     }
     if (event.keyCode == 69) {
         x.dejarClos();
+    }
+    if (event.keyCode == 83) {
+        x.dejarFreno();
     }
 })
