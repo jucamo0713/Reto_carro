@@ -94,7 +94,10 @@ body {
     top: 54.5vh;
     left: 25vw;
 }
-
+#KeyX {
+    top: 51.5vh;
+    left: 22vw;
+}
 #KeyC {
     top: 48.5vh;
     left: 25vw;
@@ -377,6 +380,7 @@ body {
     box-shadow: black 3px 3px 8px;
     cursor: pointer;
 }
+
 #contenido {
     top: 9.5vh;
     left: 17.4vw;
@@ -407,6 +411,9 @@ body {
     justify-content: space-around;
     min-width: max-content;
     width: 25vw;
+}
+#reiniciar{
+    display: none;
 }
 #volver{
     margin: 0;
@@ -477,7 +484,7 @@ height: 50%;
     left: 4vw;
 }
 #Parada{
-    z-index: 999999999;
+    z-index: 9999999999999999999999999999999;
     position: absolute;
     display: none;
     width: 100vw;

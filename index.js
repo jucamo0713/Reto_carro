@@ -1,4 +1,6 @@
 'use-strict';
+let x;
+let history = '';
 //Objeto Carro
 class Carro {
     constructor() {
@@ -22,6 +24,10 @@ class Carro {
         this.map = NaN;
         this.route = [];
         this.ubicacion = 0;
+        this.parabrisas = false;
+        this.derecha = false;
+        this.izquierda = false;
+        this.volanteP = "centro";
     }
     acelerar = async () => {
         if (!this.frenoMano) {
@@ -118,10 +124,19 @@ class Carro {
             if ((this.route[this.ubicacion].distance <= this.distancia && !compro2) || this.ubicacion == 0) {
                 pintar(this.route[this.ubicacion].action);
                 if (this.route[this.ubicacion].action == "Parada") {
-                    this.distance=this.route[this.ubicacion].distance;
+                    this.distance = this.route[this.ubicacion].distance;
                     this.parada(this.route[this.ubicacion].duration);
                     this.ubicacion++;
                     pintar(this.route[this.ubicacion].action);
+                }
+                if (this.route[this.ubicacion].action == "Llegaste a tu destino") {
+                    clearInterval(this.timer)
+                    setTimeout(() => {
+                        document.getElementById('pant1').style.display = "none";
+                        document.getElementById('pant2').style.display = "block";
+                        document.getElementById('volver2').style.display = "none";
+                        document.getElementById('reiniciar').style.display = "block";
+                    }, 1000);
                 }
                 this.ubicacion++;
             }
@@ -136,6 +151,28 @@ class Carro {
         document.getElementById('VelocidadA').textContent = (Math.round(this.velocidad * (180 / 5))) / 10 + " km/h";
         document.getElementById('DistanciaA').textContent = (Math.round(this.distancia / (100))) / 10 + " km";
     }
+
+    automatico = async () => {
+        if(this.tiempo==0){
+            pintar(this.route[this.ubicacion].action); 
+            
+            if (this.route[this.ubicacion].action == "Llegaste a tu destino") {
+                document.getElementById('reiniciar').style.display = "block";
+                clearInterval(this.timer);
+            }
+        }
+        this.tiempo++;
+        console.log(this.tiempo);
+        try {
+            if ((this.route[this.ubicacion].duration == this.tiempo)) {                
+                this.tiempo = 0;               
+                this.ubicacion++;
+                if (this.route[this.ubicacion].action == "Parada") {
+                    this.paradaA(this.route[this.ubicacion].duration);
+                }
+            }
+        } catch (err) { }
+    }
     parada = (time) => {
         let t = time;
         clearInterval(this.timer);
@@ -146,10 +183,27 @@ class Carro {
             document.getElementById("stopTime").innerHTML = t;
         }, 1000);
         let tiempo = setTimeout(() => {
-            document.getElementById("Parada").style.display = "none"; 
+            document.getElementById("Parada").style.display = "none";
             clearInterval(tiempo2);
-            this.timer=setInterval(this.mover, 500);
-        }, time*1000);
+            this.timer = setInterval(this.mover, 500);
+        }, time * 1001);
+    }
+    paradaA = (time) => {
+        let t = time;
+        clearInterval(this.timer);
+        document.getElementById("Parada").style.display = "flex";
+        document.getElementById("pant2").style.display = "none";
+        document.getElementById("stopTime").innerHTML = time;
+        let tiempo2 = setInterval(() => {
+            t--;
+            document.getElementById("stopTime").innerHTML = t;
+        }, 1000);
+        let tiempo = setTimeout(() => {
+            document.getElementById("Parada").style.display = "none";
+            clearInterval(tiempo2);
+            document.getElementById("pant2").style.display = "block";
+            this.timer = setInterval(this.automatico, 1000);
+        }, time * 1001);
     }
     encender = async () => {
         if (!this.frenoMano) {
@@ -355,7 +409,6 @@ class Carro {
         this.frenando = true;
         if (!this.frenando) {
             pintar("Se piso el Freno");
-            console.log(this);
         }
     }
     dejarFreno = async () => {
@@ -390,6 +443,9 @@ class Carro {
             } if (document.getElementById("KeyE").style.backgroundColor == "red") {
                 this.dejarClos();
             }
+            if (document.getElementById("KeyA").style.backgroundColor == "red" || document.getElementById("KeyD").style.backgroundColor == "red") {
+                x.volante('Centro');
+            }
             navigator.geolocation.getCurrentPosition(this.mostrar, this.gestionarErrores);
         } else {
             this.timer = setInterval(this.mover, 500);
@@ -421,7 +477,44 @@ class Carro {
         });
         document.getElementById("OK").addEventListener("click", async () => { this.calculateAndDisplayRoute(directionsService, directionsRenderer, centro, this.map.getCenter()); });
     }
-
+    btnParabrisas = async () => {
+        this.parabrisas = !this.parabrisas;
+        if (this.parabrisas) {
+            document.getElementById("KeyX").style.backgroundColor = "red";
+            document.getElementById("Parabrisas").src = "./Images/parabrisas.gif";
+            pintar('Se encendio el parabrisas');
+        } else {
+            document.getElementById("KeyX").style.backgroundColor = "white";
+            document.getElementById("Parabrisas").src = "./Images/ParabrisasPng.png";
+            pintar('Se apago el parabrisas');
+        }
+    }
+    dirIzquierda = async () => {
+        this.izquierda = !this.izquierda;
+        if (this.izquierda) {
+            document.getElementById("KeyZ").style.backgroundColor = "red";
+            pintar('Se encendio la direccional izquierda');
+        } else {
+            document.getElementById("KeyZ").style.backgroundColor = "white";
+            pintar('Se apago la direccional izquierda');
+        }
+    }
+    dirDerecha = async () => {
+        this.derecha = !this.derecha;
+        if (this.derecha) {
+            document.getElementById("KeyC").style.backgroundColor = "red";
+            pintar('Se encendio la direccional derecha');
+        } else {
+            document.getElementById("KeyC").style.backgroundColor = "white";
+            pintar('Se apago la direccional derecha');
+        }
+    }
+    volante = async (direccion) => {
+        if (this.volanteP != direccion) {
+            pintar('Se giro el volante hacia ' + direccion);
+        }
+        this.volanteP = direccion;
+    }
     gestionarErrores = async (error) => {
         window.alert('Error: ' + error.code + ' ' + error.message + '\n\nPor favor compruebe que está conectado a internet y habilite la opción permitir compartir ubicación física');
     }
@@ -441,6 +534,7 @@ class Carro {
             for (let i = 0; i < response.routes[0].legs[0].steps.length + 1; i++) {
                 if (i == response.routes[0].legs[0].steps.length) {
                     this.route.push({
+                        duration:1,
                         distance: aux,
                         action: 'Llegaste a tu destino'
                     });
@@ -453,9 +547,9 @@ class Carro {
                     aux += response.routes[0].legs[0].steps[i].distance.value;
                 }
             }
-            let paradas = this.route.length == 1 ? 0 : this.route.length == 2 ? 1 : this.route.length == 3 ? 2 : Math.floor(Math.random() * 3) + 1;
+            let paradas = this.route.length == 1 ? 0 : this.route.length == 2 ? 0 : this.route.length == 3 ? 1 : Math.floor(Math.random() * 3) + 1;
             for (let i = 0; i < paradas; i++) {
-                let temp = Math.floor(Math.random() * (this.route.length -1)) + 1;
+                let temp = Math.floor(Math.random() * (this.route.length - 1)) + 1;
                 if (this.route[temp].action == "Parada") {
                     i--;
                 } else {
@@ -466,9 +560,12 @@ class Carro {
                     });
                 }
             }
-            console.log(this.route);
             document.getElementById("Automatico").addEventListener('click', async () => {
-
+                document.getElementById("P3").style.display = "none";
+                document.getElementById("P4").style.display = "flex";
+                document.getElementById("Estadisticas").style.display = "none";
+                document.getElementById("volver2").style.display = "none";
+                this.timer=setInterval(this.automatico, 1000);
             });
             document.getElementById("Manual").addEventListener('click', async () => {
                 document.getElementById("P3").style.display = "none";
@@ -487,7 +584,6 @@ class Carro {
             }, (response, status) => {
                 if (status === "OK") {
                     directionsRenderer.setDirections(response);
-
                     document.getElementById("P1").style.display = "none";
                     document.getElementById("P2").style.display = "flex";
                 } else {
@@ -497,12 +593,10 @@ class Carro {
         );
     }
 }
-let x;
-let history = '';
 //pintar mensaje
 let pintar = (mensaje) => {
     x.historial.push(mensaje);
-    document.getElementById('Panel').innerHTML = mensaje;
+    document.getElementById('Panel').innerHTML = '<div>' + mensaje + '</div>';
     history += '<div class="historialDiv">' + mensaje + '</div>';
     document.getElementById('Historial').innerHTML = history;
 }
@@ -522,21 +616,51 @@ window.addEventListener('load', async () => {
 window.addEventListener('keydown', async (event) => {
     console.log(event.keyCode);
     try {
-        if (event.code != "KeyC" && event.code != "KeyZ" && event.code != "KeyM" && event.code != "Enter") {
+        if (event.code != "KeyC" && event.code != "KeyZ" && event.code != "KeyX" && event.code != "KeyM" && event.code != "Enter") {
             document.getElementById(event.code).style.backgroundColor = "red";
         }
     } catch (err) { }
     if (!this.pausa) {
         if (event.keyCode == 13) {
-            return x.encender();
+            x.encender();
         }
         if (event.keyCode == 77) {
-            return x.ponerFreno();
+            x.ponerFreno();
         }
         //eventos que necesitan que el carro este encendido
         if (x.encendido) {
             if (event.keyCode == 80) {
                 x.pausar();
+            }
+            if (event.keyCode == 88) {
+                x.btnParabrisas();
+            }
+            if (event.keyCode == 90) {
+                if (!x.derecha) {
+                    x.dirIzquierda();
+                } else {
+                    pintar('Apague primero la direccional derecha');
+                }
+            }
+            if (event.keyCode == 67) {
+                if (!x.izquierda) {
+                    x.dirDerecha();
+                } else {
+                    pintar('Apague primero la direccional izquierda');
+                }
+            }
+            if (event.keyCode == 65) {
+                if (x.izquierda) {
+                    x.volante('Izquierda');
+                } else {
+                    pintar('Encienda primero la direccional izquierda');
+                }
+            } if (event.keyCode == 68) {
+                if (x.derecha) {
+                    x.volante('Derecha');
+                } else {
+                    pintar('Encienda primero la direccional derecha');
+                }
             }
             if (x.route.length > 0) {
                 if (event.keyCode == 87) {
@@ -558,7 +682,7 @@ window.addEventListener('keydown', async (event) => {
                         return pintar("Suelte primero el acelerador");
                     }
                 }
-            } else {
+            } else if (event.keyCode != 88 && event.keyCode != 80 && event.keyCode != 90 && event.keyCode != 67 && event.keyCode != 65 && event.keyCode != 68) {
                 pintar('Selecciona primero un destino en el tablero de control "P"');
             }
         } else {
@@ -606,7 +730,7 @@ window.addEventListener('keydown', async (event) => {
 
 window.addEventListener('keyup', async (event) => {
     try {
-        if (event.code != "KeyC" && event.code != "KeyZ" && event.code != "KeyM" && event.code != "Enter") {
+        if (event.code != "KeyC" && event.code != "KeyZ" && event.code != "KeyX" && event.code != "KeyM" && event.code != "Enter") {
             document.getElementById(event.code).style.backgroundColor = "white";
         }
     } catch (err) { }
@@ -619,6 +743,9 @@ window.addEventListener('keyup', async (event) => {
         }
         if (event.keyCode == 83) {
             x.dejarFreno();
+        }
+        if (event.keyCode == 65 || event.keyCode == 68) {
+            x.volante('Centro');
         }
     }
 })
