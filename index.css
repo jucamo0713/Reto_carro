@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    overflow: hidden;
 }
 
 .fondo {
@@ -467,4 +468,11 @@ height: 50%;
     display: flex;
     justify-content: space-around;
     align-items: center;
+}
+.Parabrisas{
+    position: absolute;
+    width: 100vw;
+    height: 80vh;
+    top: -25vh;
+    left: 4vw;
 }
