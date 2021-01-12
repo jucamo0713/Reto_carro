@@ -162,7 +162,6 @@ class Carro {
             }
         }
         this.tiempo++;
-        console.log(this.tiempo);
         try {
             if ((this.route[this.ubicacion].duration == this.tiempo)) {                
                 this.tiempo = 0;               
@@ -614,7 +613,6 @@ window.addEventListener('load', async () => {
 
 //Undir tecla
 window.addEventListener('keydown', async (event) => {
-    console.log(event.keyCode);
     try {
         if (event.code != "KeyC" && event.code != "KeyZ" && event.code != "KeyX" && event.code != "KeyM" && event.code != "Enter") {
             document.getElementById(event.code).style.backgroundColor = "red";
