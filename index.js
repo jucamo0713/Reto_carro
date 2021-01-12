@@ -117,9 +117,11 @@ class Carro {
         try {
             if ((this.route[this.ubicacion].distance <= this.distancia && !compro2) || this.ubicacion == 0) {
                 pintar(this.route[this.ubicacion].action);
-                if (this.route[this.ubicacion].action = "Parada") {
-                    this.parada(this.route[this.ubicacion].duration);
+                if (this.route[this.ubicacion].action == "Parada") {
                     this.distance=this.route[this.ubicacion].distance;
+                    this.parada(this.route[this.ubicacion].duration);
+                    this.ubicacion++;
+                    pintar(this.route[this.ubicacion].action);
                 }
                 this.ubicacion++;
             }
