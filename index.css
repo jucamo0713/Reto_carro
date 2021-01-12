@@ -455,7 +455,7 @@ height: 50%;
     width: 48%;
     height: max-content;
 }
-#Tiempo, #VPromedio {
+#Tiempo, #VPromedio, #stopTime {
     background-color: lightgray;
     padding: 10px;
     box-sizing: border-box;
@@ -475,4 +475,18 @@ height: 50%;
     height: 80vh;
     top: -25vh;
     left: 4vw;
+}
+#Parada{
+    z-index: 999999999;
+    position: absolute;
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    background-color: lightgrey;
+    flex-flow: column;
+}
+.paradaImg{
+    width: 40%;
 }
