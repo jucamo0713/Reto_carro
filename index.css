@@ -11,8 +11,8 @@ body {
     left: 0;
 }
 
-input {
-    border:1px solid black;
+#pant1 input {
+    border: 1px solid black;
     font-weight: bold;
     font-family: monospace;
     border-radius: 50%;
@@ -104,6 +104,16 @@ input {
     left: 52vw;
 }
 
+#Pantalla {
+    top: 5.5vh;
+    left: 13.4vw;
+    position: absolute;
+    background-color: black;
+    width: 58vw;
+    height: 87vh;
+    z-index: -99999;
+}
+
 #cambios {
     width: 25vw;
     height: 20vh;
@@ -145,118 +155,127 @@ input {
     grid-row: 1/2;
     grid-column: 6/7;
 }
-#CR{
+
+#CR {
     grid-row: 7/8;
     grid-column: 6/7;
 }
-.conten{
+
+.conten {
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.vertical{
+
+.vertical {
     border: 2px solid black;
     height: 100%;
     width: 0;
 }
-#V1{    
+
+#V1 {
     grid-row: 3/4;
     grid-column: 2/3;
 }
 
-#V2{    
+#V2 {
     grid-row: 3/4;
     grid-column: 4/5;
 }
 
-#V3{    
+#V3 {
     grid-row: 3/4;
     grid-column: 6/7;
 }
-#V4{    
+
+#V4 {
     grid-row: 5/6;
     grid-column: 2/3;
 }
 
-#V5{    
+#V5 {
     grid-row: 5/6;
     grid-column: 4/5;
 }
 
-#V6{    
+#V6 {
     grid-row: 5/6;
     grid-column: 6/7;
 }
-.horizontal{    
+
+.horizontal {
     border: 2px solid black;
     height: 0;
     width: 100%;
 }
 
-#H1{    
+#H1 {
     grid-row: 4/5;
     grid-column: 3/4;
 }
 
-#H2{    
+#H2 {
     grid-row: 4/5;
     grid-column: 5/6;
 }
-.bolita{
+
+.bolita {
     background-color: black;
     width: 100%;
     height: 100%;
     border-radius: 50%;
 }
-#B1{
+
+#B1 {
     grid-row: 2/3;
     grid-column: 2/3;
 }
 
-#B2{
+#B2 {
     grid-row: 2/3;
     grid-column: 4/5;
 }
 
-#B3{
+#B3 {
     grid-row: 2/3;
     grid-column: 6/7;
 }
 
-#B4{
+#B4 {
     grid-row: 4/5;
     grid-column: 2/3;
 }
 
-#B5{
+#B5 {
     grid-row: 4/5;
     grid-column: 4/5;
 }
 
-#B6{
+#B6 {
     grid-row: 4/5;
     grid-column: 6/7;
 }
 
-#B7{
+#B7 {
     grid-row: 6/7;
     grid-column: 2/3;
 }
 
-#B8{
+#B8 {
     grid-row: 6/7;
     grid-column: 4/5;
 }
 
-#B9{
+#B9 {
     grid-row: 6/7;
     grid-column: 6/7;
 }
-#Panel{
+
+#Panel {
     background-color: rgba(255, 255, 255, 0.8);
     z-index: 9999999;
     position: absolute;
-    left:28vw;
+    left: 28vw;
     padding: 1vw;
     width: 43vw;
     height: 8vh;
@@ -267,12 +286,13 @@ input {
     overflow-wrap: break-word;
     overflow: hidden;
 }
-#Velocidad{
+
+#Velocidad {
     background-color: rgba(255, 255, 255, 0.8);
     text-align: center;
     z-index: 9999999;
     position: absolute;
-    left:14vw;
+    left: 14vw;
     top: 2vh;
     padding: 1vw;
     width: 10vw;
@@ -281,11 +301,12 @@ input {
     justify-content: center;
     align-items: center;
 }
-#Distancia{
+
+#Distancia {
     background-color: rgba(228, 213, 213, 0.8);
     text-align: center;
     z-index: 9999999;
-    display: flex;    
+    display: flex;
     justify-content: center;
     align-items: center;
     position: absolute;
@@ -293,4 +314,122 @@ input {
     padding: 1vw;
     width: 10vw;
     height: 4vh;
+}
+
+#tablero {
+    z-index: 9999999999;
+}
+
+#pant2 {
+    display: none;
+}
+
+#map {
+    width: 100%;
+    height: 79vh;
+    position: relative;
+}
+#P1{
+    text-align: center;
+    display:flex;
+    flex-flow: column;
+    align-items: center;
+}
+#P2{
+    text-align: center;
+    display:none;
+    flex-flow: column;
+    align-items: center;
+}
+#P3{
+    text-align: center;
+    display:none;
+    flex-flow: column;
+    align-items: center;
+}
+#P4{
+    text-align: center;
+    display:none;
+    flex-flow: column;
+    align-items: center;
+}
+#select {
+    position: absolute;
+    top:1vh;
+    margin: 0;
+    background-color: rgba(77, 77, 77, 0.4);
+}
+
+#presicion {
+    position: absolute;
+    top:70vh;
+    left:1vw;
+    margin: 0;
+    background-color: rgba(77, 77, 77, 0.4);
+}
+
+#OK{
+    position: absolute;
+    top:65vh;
+    left:40vw;
+    margin: 0;
+    background-color: black;
+    color: white;
+    padding: 20px;
+    border-radius: 50%;
+    border: 0;
+    box-shadow: black 3px 3px 8px;
+    cursor: pointer;
+}
+#contenido {
+    top: 9.5vh;
+    left: 17.4vw;
+    position: absolute;
+    width: 50vw;
+    height: 79vh;
+    z-index: 9999999999999999999999999;
+    overflow: hidden;
+    border-radius: 10px;
+}
+#PanelR{
+    max-height: 69vh;
+    overflow-y: scroll;    
+    background-color: rgb(148, 148, 148);
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+#Ok2{
+    margin: 0;
+    padding: 3px;
+    width: 10vw;
+    border-radius: 3px;
+    cursor: pointer;
+    border:black 1px solid;
+}
+.botones{
+    display: flex;
+    justify-content: space-around;
+    min-width: max-content;
+    width: 25vw;
+}
+#volver{
+    margin: 0;
+    padding: 3px;
+    width: 10vw;
+    border-radius: 3px;
+    border:black 1px solid;
+    cursor: pointer;
+}
+.column{
+    display: flex;
+    flex-flow: column;
+    height: 79vh;
+    justify-content: space-around;
+}
+.column input{
+    width: 40vh;
+    height: 10vh;
+    font-size: 5vh;
+    border-radius: 10px;
+    cursor: pointer;
 }

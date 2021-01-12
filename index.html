@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript" src="index.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBawixDb7I5u7qT7hlkP0w4WYzMCnG7IhY&callback=initMap&libraries=&v=weekly"
+        defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
     <title>Carro</title>
     <link rel="stylesheet" href="index.css">
 </head>
@@ -76,32 +81,64 @@
             <div class="conten" id="H2">
                 <div class="horizontal"></div>
             </div>
-            <div class="conten" id="B1" >
+            <div class="conten" id="B1">
                 <div class="bolita" id="Bo1"></div>
             </div>
-            <div class="conten" id="B2" >
+            <div class="conten" id="B2">
                 <div class="bolita" id="Bo2"></div>
             </div>
-            <div class="conten" id="B3" >
+            <div class="conten" id="B3">
                 <div class="bolita" id="Bo3"></div>
             </div>
-            <div class="conten" id="B4" >
+            <div class="conten" id="B4">
                 <div class="bolita" id="Bo4"></div>
             </div>
-            <div class="conten" id="B5" >
+            <div class="conten" id="B5">
                 <div class="bolita" id="Bo5"></div>
             </div>
-            <div class="conten" id="B6" >
+            <div class="conten" id="B6">
                 <div class="bolita" id="Bo6"></div>
             </div>
-            <div class="conten" id="B7" >
+            <div class="conten" id="B7">
                 <div class="bolita" id="Bo7"></div>
             </div>
-            <div class="conten" id="B8" >
+            <div class="conten" id="B8">
                 <div class="bolita" id="Bo8"></div>
             </div>
-            <div class="conten" id="B9" >
+            <div class="conten" id="B9">
                 <div class="bolita" id="Bo9"></div>
+            </div>
+        </div>
+    </div>
+    <div id="pant2">
+        <div id="Pantalla">
+
+        </div>
+        <img src="./Images/tablero.png" class="fondo" id="tablero">
+        <div id="contenido">
+            <div id="P1">
+                <div id="map"></div>
+                <h1 id=select>Escoje el destino</h1>
+                <div id="presicion"></div>
+                <input type="button" value="OK" id="OK">
+            </div>
+            <div id=P2>
+                <div id="PanelR"></div>
+                <div class="botones">
+                    <input id="Ok2" type="button" value="OK">
+                    <input id="volver" type="button" value="Volver">
+                </div>
+            </div>
+            <div id="P3" class="column">
+                <input type="button" value="Manual" id="Manual">
+                <input type="button" value="Automatico" id="Automatico">
+            </div>
+            <div id="P4" class="column">
+                <div id="Estadisticas">
+                    <div id="Tiempo"></div>
+                    <div id="VPromedio"></div>
+                </div>
+                <input id="volver2" type="button" value="Volver">
             </div>
         </div>
     </div>

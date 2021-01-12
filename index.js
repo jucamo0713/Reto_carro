@@ -18,6 +18,9 @@ class Carro {
         this.historial = [];
         this.tiempo = 0;
         this.timer = setInterval(this.mover, 500);
+        this.pausa = false;
+        this.map = NaN;
+        this.route = [];
     }
     acelerar = async () => {
         if (!this.frenoMano) {
@@ -88,7 +91,7 @@ class Carro {
             }
         } else if (this.marcha < 0 && this.moviendo) {
             this.distancia = this.distancia + (this.velocidad * 0.5 + 0.5 * 0.5 * 0.5 * (this.aceleracion));
-            this.velocidad = this.velocidad + (this.frenando ? 4 * this.aceleracion + 1: this.aceleracion) * 0.5;
+            this.velocidad = this.velocidad + (this.frenando ? 4 * this.aceleracion + 1 : this.aceleracion) * 0.5;
             if (this.velocidad < this.tope) {
                 this.velocidad = this.tope;
             }
@@ -107,8 +110,10 @@ class Carro {
         } else if (compro) {
             document.getElementById("ruta").src = "./Images/carretera.gif";
         }
-        document.getElementById('Velocidad').textContent = (Math.round(x.velocidad * (180 / 5))) / 10 + " km/h";
-        document.getElementById('Distancia').textContent = (Math.round(x.distancia / (100))) / 10 + " km";
+        document.getElementById('Velocidad').textContent = (Math.round(this.velocidad * (180 / 5))) / 10 + " km/h";
+        document.getElementById('Distancia').textContent = (Math.round(this.distancia / (100))) / 10 + " km";
+        document.getElementById('Tiempo').textContent = "Tiempo en movimiento: \n"+Math.floor(this.tiempo/3600)+":"+(Math.floor((this.tiempo/3600-Math.floor(this.tiempo/3600))*60)+'').padStart(2,'0')+":"+(Math.floor(((this.tiempo/60)-Math.floor(this.tiempo/60))*60)+'').padStart(2,'0');
+        document.getElementById('VPromedio').textContent = "Velocidad Promedio: \n"+(this.tiempo!=0?(Math.round((this.distancia/this.tiempo) * (180 / 5))) / 10:0) + " km/h";
     }
     encender = async () => {
         if (!this.frenoMano) {
@@ -336,9 +341,112 @@ class Carro {
             pintar("Se solto el Freno");
         } this.frenando = false;
     }
+    pausar = async () => {
+        this.pausa = !this.pausa;
+        if (this.pausa) {
+            clearInterval(this.timer);
+            document.getElementById("pant1").style.display = "none";
+            document.getElementById("pant2").style.display = "block";
+            if (document.getElementById("KeyS").style.backgroundColor == "red") {
+                this.dejarFreno();
+            } if (document.getElementById("KeyW").style.backgroundColor == "red") {
+                this.dejarAcelerar();
+            } if (document.getElementById("KeyE").style.backgroundColor == "red") {
+                this.dejarClos();
+            }
+            navigator.geolocation.getCurrentPosition(this.mostrar, this.gestionarErrores);
+        } else {
+            this.timer = setInterval(this.mover, 500);
+            document.getElementById("pant1").style.display = "block";
+            document.getElementById("pant2").style.display = "none";
+        }
+    }
+    mostrar = async (posicion) => {
+        document.getElementById("presicion").innerHTML = "Precisión: " + posicion.coords.accuracy + " m";
+        const myLatlng = { lat: posicion.coords.latitude, lng: posicion.coords.longitude };
+        let mapOptions = {
+            zoom: 15,
+            center: new google.maps.LatLng(posicion.coords.latitude, posicion.coords.longitude)
+        };
+        this.map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        const directionsService = new google.maps.DirectionsService();
+        let centro = this.map.getCenter();
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+            map: this.map,
+            panel: document.getElementById("PanelR"),
+        });
+        let marker = new google.maps.Marker({
+            position: myLatlng,
+            map: this.map,
+            title: "Destino",
+        });
+        this.map.addListener("center_changed", async () => {
+            marker.setPosition(this.map.getCenter());
+        });
+        document.getElementById("OK").addEventListener("click", async () => { this.calculateAndDisplayRoute(directionsService, directionsRenderer, centro, this.map.getCenter()); });
+    }
+
+    gestionarErrores = async (error) => {
+        window.alert('Error: ' + error.code + ' ' + error.message + '\n\nPor favor compruebe que está conectado a internet y habilite la opción permitir compartir ubicación física');
+    }
+    calculateAndDisplayRoute = async (directionsService, directionsRenderer, origin, destino) => {
+        document.getElementById("volver").addEventListener('click', async () => {
+            document.getElementById("P1").style.display = "flex";
+            document.getElementById("P2").style.display = "none";
+            document.getElementById("PanelR").innerHTML = "";
+            this.map.setZoom(15);
+        });
+        document.getElementById("Ok2").addEventListener('click', () => {
+            document.getElementById("P2").style.display = "none";
+            document.getElementById("P3").style.display = "flex";
+            document.getElementById("Automatico").addEventListener('click', async () => {
+
+            });
+            document.getElementById("Manual").addEventListener('click', async () => {
+                document.getElementById("P3").style.display = "none";
+                document.getElementById("P4").style.display = "flex";
+                document.getElementById("volver2").addEventListener('click', async()=>{
+                    this.pausar();
+                });
+                this.pausar();
+            })
+        });
+        directionsService.route(
+            {
+                origin: origin,
+                destination: destino,
+                travelMode: google.maps.TravelMode.DRIVING,
+            }, (response, status) => {
+                if (status === "OK") {
+                    directionsRenderer.setDirections(response);
+                    let aux = 0;
+                    let paradas= Math.floor(Math.random()*3)+1;
+                    for (let i = 0; i < response.routes[0].legs[0].steps.length; i++) {
+                        this.route.push({
+                            duration: response.routes[0].legs[0].steps[i].duration.value,
+                            distance: aux,
+                            action: response.routes[0].legs[0].steps[i].instructions
+                        });
+                        aux += response.routes[0].legs[0].steps[i].distance.value;
+                    } 
+                    for(let i=0; i<paradas;i++){
+                        let temp=Math.floor(Math.random()*(this.route.length-1))+1;
+                        this.route.splice(temp,0,{
+                            duration:Math.floor(Math.random()*3)+1,
+                            distance:this.route[temp].distance,
+                            action:"Parada"
+                        });
+                    }
+                    document.getElementById("P1").style.display = "none";
+                    document.getElementById("P2").style.display = "flex";
+                } else {
+                    window.alert("Directions request failed due to " + status);
+                }
+            }
+        );
+    }
 }
 let x;
-let ruta = [];
 //pintar mensaje
 let pintar = (mensaje) => {
     x.historial.push(mensaje);
@@ -354,79 +462,85 @@ window.addEventListener('load', async () => {
         document.getElementById("KeyM").style.backgroundColor = "red";
     }
     return pintar("Enciende el carro");
-})
+});
 
 //Undir tecla
 window.addEventListener('keydown', async (event) => {
+    console.log(event.keyCode);
     try {
         if (event.code != "KeyC" && event.code != "KeyZ" && event.code != "KeyM" && event.code != "Enter") {
             document.getElementById(event.code).style.backgroundColor = "red";
         }
     } catch (err) { }
-    if (event.keyCode == 13) {
-        return x.encender();
-    }
-    if (event.keyCode == 77) {
-        return x.ponerFreno();
-    }
-    //eventos que necesitan que el carro este encendido
-    if (x.encendido) {
-        if (event.keyCode == 87) {
-            if (document.getElementById("KeyS").style.backgroundColor != "red") {
-                return x.acelerar();
-            } else {
-                document.getElementById("KeyW").style.backgroundColor = "white"
-                return pintar("Suelte primero el Freno");
+    if (!this.pausa) {
+        if (event.keyCode == 13) {
+            return x.encender();
+        }
+        if (event.keyCode == 77) {
+            return x.ponerFreno();
+        }
+        //eventos que necesitan que el carro este encendido
+        if (x.encendido) {
+            if (event.keyCode == 80) {
+                x.pausar();
+            }
+            if (event.keyCode == 87) {
+                if (document.getElementById("KeyS").style.backgroundColor != "red") {
+                    return x.acelerar();
+                } else {
+                    document.getElementById("KeyW").style.backgroundColor = "white"
+                    return pintar("Suelte primero el Freno");
+                }
+            }
+            if (event.keyCode == 69) {
+                return x.pisarClos();
+            }
+            if (event.keyCode == 83) {
+                if (document.getElementById("KeyW").style.backgroundColor != "red") {
+                    return x.frenar();
+                } else {
+                    document.getElementById("KeyS").style.backgroundColor = "white"
+                    return pintar("Suelte primero el acelerador");
+                }
+            }
+        } else {
+            if (!(event.keyCode == 13 || event.keyCode == 77 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 37)) {
+                return pintar("Debes encender el carro antes");
             }
         }
-        if (event.keyCode == 69) {
-            return x.pisarClos();
-        }
-        if (event.keyCode == 83) {
-            if (document.getElementById("KeyW").style.backgroundColor != "red") {
-                return x.frenar();
-            } else {
-                document.getElementById("KeyS").style.backgroundColor = "white"
-                return pintar("Suelte primero el acelerador");
+        //Cambios
+        if (x.clos || !x.encendido) {
+            if (event.keyCode == 38) {
+                return x.subirPalanca();
             }
-        }
-    } else {
-        if (!(event.keyCode == 13 || event.keyCode == 77 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 37)) {
-            return pintar("Debes encender el carro antes");
-        }
-    }
-    //Cambios
-    if (x.clos || !x.encendido) {
-        if (event.keyCode == 38) {
-            return x.subirPalanca();
-        }
 
-        if (event.keyCode == 40) {
-            return x.bajarPalanca();
-        }
+            if (event.keyCode == 40) {
+                return x.bajarPalanca();
+            }
 
-        if (event.keyCode == 39) {
-            return x.derechaPalanca();
-        }
+            if (event.keyCode == 39) {
+                return x.derechaPalanca();
+            }
 
-        if (event.keyCode == 37) {
-            return x.izquierdaPalanca();
-        }
-    } else {
-        if (event.keyCode == 38) {
-            return pintar("Para hacer un cambio el carro debe estar apagado o con el clos activado");
-        }
+            if (event.keyCode == 37) {
+                return x.izquierdaPalanca();
+            }
+        } else {
+            if (event.keyCode == 38) {
+                return pintar("Para hacer un cambio el carro debe estar apagado o con el clos activado");
+            }
 
-        if (event.keyCode == 40) {
-            return pintar("Para hacer un cambio el carro debe estar apagado o con el clos activado");
-        }
+            if (event.keyCode == 40) {
+                return pintar("Para hacer un cambio el carro debe estar apagado o con el clos activado");
+            }
 
-        if (event.keyCode == 39) {
-            return pintar("Para hacer un cambio el carro debe estar apagado o con el clos activado");
-        }
+            if (event.keyCode == 39) {
+                return pintar("Para hacer un cambio el carro debe estar apagado o con el clos activado");
+            }
 
-        if (event.keyCode == 37) {
-            return pintar("Para hacer un cambio el carro debe estar apagado o con el clos activado");
+            if (event.keyCode == 37) {
+                return pintar("Para hacer un cambio el carro debe estar apagado o con el clos activado");
+            }
         }
     }
 })
@@ -438,13 +552,15 @@ window.addEventListener('keyup', async (event) => {
             document.getElementById(event.code).style.backgroundColor = "white";
         }
     } catch (err) { }
-    if (event.keyCode == 87) {
-        x.dejarAcelerar();
-    }
-    if (event.keyCode == 69) {
-        x.dejarClos();
-    }
-    if (event.keyCode == 83) {
-        x.dejarFreno();
+    if (!this.pausa) {
+        if (event.keyCode == 87) {
+            x.dejarAcelerar();
+        }
+        if (event.keyCode == 69) {
+            x.dejarClos();
+        }
+        if (event.keyCode == 83) {
+            x.dejarFreno();
+        }
     }
 })
