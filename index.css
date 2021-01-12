@@ -335,22 +335,17 @@ body {
     flex-flow: column;
     align-items: center;
 }
-#P2{
-    text-align: center;
-    display:none;
-    flex-flow: column;
-    align-items: center;
-}
-#P3{
+#P2,#P3{
     text-align: center;
     display:none;
     flex-flow: column;
     align-items: center;
 }
 #P4{
-    text-align: center;
+    width: 100%;
+    height: 100%;
     display:none;
-    flex-flow: column;
+    text-align: center;
     align-items: center;
 }
 #select {
@@ -432,4 +427,44 @@ body {
     font-size: 5vh;
     border-radius: 10px;
     cursor: pointer;
+}
+#Historial{
+width: 46%;
+height: 100%;  
+background-color: lightgray;
+border-radius: 10px;
+overflow-y: scroll;
+align-items: flex-start;
+}
+#Estadisticas{
+width: 46%;
+height: 50%;
+}
+#Estadisticas2{
+    width: 100%;
+    height: 40%;
+    display: flex;
+    justify-content: space-around;
+}
+#VelocidadA, #DistanciaA{
+    background-color: lightgray;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    width: 48%;
+    height: max-content;
+}
+#Tiempo, #VPromedio {
+    background-color: lightgray;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    margin: 10px 0 10px 0;
+}
+#SeparadorHistoEsta{
+    width: 100%;
+    height: 80%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
