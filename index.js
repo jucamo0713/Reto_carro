@@ -112,8 +112,10 @@ class Carro {
         }
         document.getElementById('Velocidad').textContent = (Math.round(this.velocidad * (180 / 5))) / 10 + " km/h";
         document.getElementById('Distancia').textContent = (Math.round(this.distancia / (100))) / 10 + " km";
-        document.getElementById('Tiempo').textContent = "Tiempo en movimiento: \n"+Math.floor(this.tiempo/3600)+":"+(Math.floor((this.tiempo/3600-Math.floor(this.tiempo/3600))*60)+'').padStart(2,'0')+":"+(Math.floor(((this.tiempo/60)-Math.floor(this.tiempo/60))*60)+'').padStart(2,'0');
-        document.getElementById('VPromedio').textContent = "Velocidad Promedio: \n"+(this.tiempo!=0?(Math.round((this.distancia/this.tiempo) * (180 / 5))) / 10:0) + " km/h";
+        document.getElementById('Tiempo').textContent = "Tiempo en movimiento: \n" + Math.floor(this.tiempo / 3600) + ":" + (Math.floor((this.tiempo / 3600 - Math.floor(this.tiempo / 3600)) * 60) + '').padStart(2, '0') + ":" + (Math.floor(((this.tiempo / 60) - Math.floor(this.tiempo / 60)) * 60) + '').padStart(2, '0');
+        document.getElementById('VPromedio').textContent = "Velocidad Promedio: \n" + (this.tiempo != 0 ? (Math.round((this.distancia / this.tiempo) * (180 / 5))) / 10 : 0) + " km/h";
+        document.getElementById('VelocidadA').textContent = (Math.round(this.velocidad * (180 / 5))) / 10 + " km/h";
+        document.getElementById('DistanciaA').textContent = (Math.round(this.distancia / (100))) / 10 + " km";
     }
     encender = async () => {
         if (!this.frenoMano) {
@@ -274,16 +276,16 @@ class Carro {
     }
     ponerFreno = async () => {
         this.frenoMano = !this.frenoMano;
-        if (this.frenoMano) {
-            if (this.velocidad == 0) {
+        if (this.velocidad == 0) {
+            if (this.frenoMano) {
                 document.getElementById("KeyM").style.backgroundColor = "red";
                 return pintar("Se puso el freno de mano");
             } else {
-                return pintar("Detenga primero el coche");
+                document.getElementById("KeyM").style.backgroundColor = "white";
+                return pintar("Se quito el freno de mano");
             }
         } else {
-            document.getElementById("KeyM").style.backgroundColor = "white";
-            return pintar("Se quito el freno de mano");
+            return pintar("Detenga primero el coche");
         }
     }
     frenar = async () => {
@@ -405,7 +407,7 @@ class Carro {
             document.getElementById("Manual").addEventListener('click', async () => {
                 document.getElementById("P3").style.display = "none";
                 document.getElementById("P4").style.display = "flex";
-                document.getElementById("volver2").addEventListener('click', async()=>{
+                document.getElementById("volver2").addEventListener('click', async () => {
                     this.pausar();
                 });
                 this.pausar();
@@ -420,7 +422,6 @@ class Carro {
                 if (status === "OK") {
                     directionsRenderer.setDirections(response);
                     let aux = 0;
-                    let paradas= Math.floor(Math.random()*3)+1;
                     for (let i = 0; i < response.routes[0].legs[0].steps.length; i++) {
                         this.route.push({
                             duration: response.routes[0].legs[0].steps[i].duration.value,
@@ -428,13 +429,14 @@ class Carro {
                             action: response.routes[0].legs[0].steps[i].instructions
                         });
                         aux += response.routes[0].legs[0].steps[i].distance.value;
-                    } 
-                    for(let i=0; i<paradas;i++){
-                        let temp=Math.floor(Math.random()*(this.route.length-1))+1;
-                        this.route.splice(temp,0,{
-                            duration:Math.floor(Math.random()*3)+1,
-                            distance:this.route[temp].distance,
-                            action:"Parada"
+                    }
+                    let paradas = this.route.length == 1 ? 0 : this.route.length == 2 ? 1 : this.route.length == 3 ? 2 : Math.floor(Math.random() * 3) + 1;
+                    for (let i = 0; i < paradas; i++) {
+                        let temp = Math.floor(Math.random() * (this.route.length - 1)) + 1;
+                        this.route.splice(temp, 0, {
+                            duration: Math.floor(Math.random() * 3) + 1,
+                            distance: this.route[temp].distance,
+                            action: "Parada"
                         });
                     }
                     document.getElementById("P1").style.display = "none";
@@ -447,10 +449,13 @@ class Carro {
     }
 }
 let x;
+let history = '';
 //pintar mensaje
 let pintar = (mensaje) => {
     x.historial.push(mensaje);
-    document.getElementById('Panel').textContent = mensaje;
+    document.getElementById('Panel').innerHTML = mensaje;
+    history += '<div class="historialDiv">' + mensaje + '</div>';
+    document.getElementById('Historial').innerHTML = history;
 }
 //Inicio
 window.addEventListener('load', async () => {
@@ -484,24 +489,28 @@ window.addEventListener('keydown', async (event) => {
             if (event.keyCode == 80) {
                 x.pausar();
             }
-            if (event.keyCode == 87) {
-                if (document.getElementById("KeyS").style.backgroundColor != "red") {
-                    return x.acelerar();
-                } else {
-                    document.getElementById("KeyW").style.backgroundColor = "white"
-                    return pintar("Suelte primero el Freno");
+            if (x.route.length>0) {
+                if (event.keyCode == 87) {
+                    if (document.getElementById("KeyS").style.backgroundColor != "red") {
+                        return x.acelerar();
+                    } else {
+                        document.getElementById("KeyW").style.backgroundColor = "white"
+                        return pintar("Suelte primero el Freno");
+                    }
                 }
-            }
-            if (event.keyCode == 69) {
-                return x.pisarClos();
-            }
-            if (event.keyCode == 83) {
-                if (document.getElementById("KeyW").style.backgroundColor != "red") {
-                    return x.frenar();
-                } else {
-                    document.getElementById("KeyS").style.backgroundColor = "white"
-                    return pintar("Suelte primero el acelerador");
+                if (event.keyCode == 69) {
+                    return x.pisarClos();
                 }
+                if (event.keyCode == 83) {
+                    if (document.getElementById("KeyW").style.backgroundColor != "red") {
+                        return x.frenar();
+                    } else {
+                        document.getElementById("KeyS").style.backgroundColor = "white"
+                        return pintar("Suelte primero el acelerador");
+                    }
+                }
+            }else{
+                pintar('Selecciona primero un destino en el tablero de control "P"');
             }
         } else {
             if (!(event.keyCode == 13 || event.keyCode == 77 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40 || event.keyCode == 37)) {
