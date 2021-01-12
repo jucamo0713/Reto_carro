@@ -21,6 +21,7 @@ class Carro {
         this.pausa = false;
         this.map = NaN;
         this.route = [];
+        this.ubicacion = 0;
     }
     acelerar = async () => {
         if (!this.frenoMano) {
@@ -40,8 +41,11 @@ class Carro {
     }
     mover = async () => {
         let compro = this.velocidad == 0;
-        if (this.moviendo || this.velocidad != 0) {
-            this.tiempo += 0.5;
+        let compro2;
+        try {
+            compro2 = this.route[this.ubicacion].distance < this.distancia;
+        } catch (error) {
+
         }
         if (this.marcha > 0 && this.moviendo) {
             this.distancia = this.distancia + (this.velocidad * 0.5 + 0.5 * 0.5 * 0.5 * (this.aceleracion + this.desaceleracion));
@@ -110,12 +114,40 @@ class Carro {
         } else if (compro) {
             document.getElementById("ruta").src = "./Images/carretera.gif";
         }
+        try {
+            if ((this.route[this.ubicacion].distance <= this.distancia && !compro2) || this.ubicacion == 0) {
+                pintar(this.route[this.ubicacion].action);
+                if (this.route[this.ubicacion].action = "Parada") {
+                    this.parada(this.route[this.ubicacion].duration);
+                    this.distance=this.route[this.ubicacion].distance;
+                }
+                this.ubicacion++;
+            }
+        } catch (err) { }
+        if (this.moviendo || this.velocidad != 0) {
+            this.tiempo += 0.5;
+        }
         document.getElementById('Velocidad').textContent = (Math.round(this.velocidad * (180 / 5))) / 10 + " km/h";
         document.getElementById('Distancia').textContent = (Math.round(this.distancia / (100))) / 10 + " km";
         document.getElementById('Tiempo').textContent = "Tiempo en movimiento: \n" + Math.floor(this.tiempo / 3600) + ":" + (Math.floor((this.tiempo / 3600 - Math.floor(this.tiempo / 3600)) * 60) + '').padStart(2, '0') + ":" + (Math.floor(((this.tiempo / 60) - Math.floor(this.tiempo / 60)) * 60) + '').padStart(2, '0');
         document.getElementById('VPromedio').textContent = "Velocidad Promedio: \n" + (this.tiempo != 0 ? (Math.round((this.distancia / this.tiempo) * (180 / 5))) / 10 : 0) + " km/h";
         document.getElementById('VelocidadA').textContent = (Math.round(this.velocidad * (180 / 5))) / 10 + " km/h";
         document.getElementById('DistanciaA').textContent = (Math.round(this.distancia / (100))) / 10 + " km";
+    }
+    parada = (time) => {
+        let t = time;
+        clearInterval(this.timer);
+        document.getElementById("Parada").style.display = "flex";
+        document.getElementById("stopTime").innerHTML = time;
+        let tiempo2 = setInterval(() => {
+            t--;
+            document.getElementById("stopTime").innerHTML = t;
+        }, 1000);
+        let tiempo = setTimeout(() => {
+            document.getElementById("Parada").style.display = "none"; 
+            clearInterval(tiempo2);
+            this.timer=setInterval(this.mover, 500);
+        }, time*1000);
     }
     encender = async () => {
         if (!this.frenoMano) {
@@ -399,8 +431,40 @@ class Carro {
             this.map.setZoom(15);
         });
         document.getElementById("Ok2").addEventListener('click', () => {
+            pintar('Se selecciono la ruta');
+            let response = directionsRenderer.getDirections();
             document.getElementById("P2").style.display = "none";
             document.getElementById("P3").style.display = "flex";
+            let aux = 0;
+            for (let i = 0; i < response.routes[0].legs[0].steps.length + 1; i++) {
+                if (i == response.routes[0].legs[0].steps.length) {
+                    this.route.push({
+                        distance: aux,
+                        action: 'Llegaste a tu destino'
+                    });
+                } else {
+                    this.route.push({
+                        duration: response.routes[0].legs[0].steps[i].duration.value,
+                        distance: aux,
+                        action: response.routes[0].legs[0].steps[i].instructions
+                    });
+                    aux += response.routes[0].legs[0].steps[i].distance.value;
+                }
+            }
+            let paradas = this.route.length == 1 ? 0 : this.route.length == 2 ? 1 : this.route.length == 3 ? 2 : Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < paradas; i++) {
+                let temp = Math.floor(Math.random() * (this.route.length -1)) + 1;
+                if (this.route[temp].action == "Parada") {
+                    i--;
+                } else {
+                    this.route.splice(temp, 0, {
+                        duration: Math.floor(Math.random() * 3) + 1,
+                        distance: this.route[temp].distance,
+                        action: "Parada"
+                    });
+                }
+            }
+            console.log(this.route);
             document.getElementById("Automatico").addEventListener('click', async () => {
 
             });
@@ -421,24 +485,7 @@ class Carro {
             }, (response, status) => {
                 if (status === "OK") {
                     directionsRenderer.setDirections(response);
-                    let aux = 0;
-                    for (let i = 0; i < response.routes[0].legs[0].steps.length; i++) {
-                        this.route.push({
-                            duration: response.routes[0].legs[0].steps[i].duration.value,
-                            distance: aux,
-                            action: response.routes[0].legs[0].steps[i].instructions
-                        });
-                        aux += response.routes[0].legs[0].steps[i].distance.value;
-                    }
-                    let paradas = this.route.length == 1 ? 0 : this.route.length == 2 ? 1 : this.route.length == 3 ? 2 : Math.floor(Math.random() * 3) + 1;
-                    for (let i = 0; i < paradas; i++) {
-                        let temp = Math.floor(Math.random() * (this.route.length - 1)) + 1;
-                        this.route.splice(temp, 0, {
-                            duration: Math.floor(Math.random() * 3) + 1,
-                            distance: this.route[temp].distance,
-                            action: "Parada"
-                        });
-                    }
+
                     document.getElementById("P1").style.display = "none";
                     document.getElementById("P2").style.display = "flex";
                 } else {
@@ -489,7 +536,7 @@ window.addEventListener('keydown', async (event) => {
             if (event.keyCode == 80) {
                 x.pausar();
             }
-            if (x.route.length>0) {
+            if (x.route.length > 0) {
                 if (event.keyCode == 87) {
                     if (document.getElementById("KeyS").style.backgroundColor != "red") {
                         return x.acelerar();
@@ -509,7 +556,7 @@ window.addEventListener('keydown', async (event) => {
                         return pintar("Suelte primero el acelerador");
                     }
                 }
-            }else{
+            } else {
                 pintar('Selecciona primero un destino en el tablero de control "P"');
             }
         } else {
