@@ -138,6 +138,7 @@ class Carro {
                         document.getElementById('reiniciar').style.display = "block";
                     }, 1000);
                 }
+                this.desaceleracion = -Math.random() * 0.2;
                 this.ubicacion++;
             }
         } catch (err) { }
@@ -153,9 +154,9 @@ class Carro {
     }
 
     automatico = async () => {
-        if(this.tiempo==0){
-            pintar(this.route[this.ubicacion].action); 
-            
+        if (this.tiempo == 0) {
+            pintar(this.route[this.ubicacion].action);
+
             if (this.route[this.ubicacion].action == "Llegaste a tu destino") {
                 document.getElementById('reiniciar').style.display = "block";
                 clearInterval(this.timer);
@@ -163,8 +164,8 @@ class Carro {
         }
         this.tiempo++;
         try {
-            if ((this.route[this.ubicacion].duration == this.tiempo)) {                
-                this.tiempo = 0;               
+            if ((this.route[this.ubicacion].duration == this.tiempo)) {
+                this.tiempo = 0;
                 this.ubicacion++;
                 if (this.route[this.ubicacion].action == "Parada") {
                     this.paradaA(this.route[this.ubicacion].duration);
@@ -533,7 +534,7 @@ class Carro {
             for (let i = 0; i < response.routes[0].legs[0].steps.length + 1; i++) {
                 if (i == response.routes[0].legs[0].steps.length) {
                     this.route.push({
-                        duration:1,
+                        duration: 1,
                         distance: aux,
                         action: 'Llegaste a tu destino'
                     });
@@ -564,7 +565,7 @@ class Carro {
                 document.getElementById("P4").style.display = "flex";
                 document.getElementById("Estadisticas").style.display = "none";
                 document.getElementById("volver2").style.display = "none";
-                this.timer=setInterval(this.automatico, 1000);
+                this.timer = setInterval(this.automatico, 1000);
             });
             document.getElementById("Manual").addEventListener('click', async () => {
                 document.getElementById("P3").style.display = "none";
